@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:contacts/helpers/contact_helper.dart';
 import 'dart:io';
-
+import 'dart:async';
+import 'package:image_picker/image_picker.dart';
 
 class ContactPage extends StatefulWidget {
 
@@ -20,6 +21,7 @@ class _ContactPageState extends State<ContactPage> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _nameFocous = FocusNode();
   
 
   @override
@@ -40,7 +42,10 @@ class _ContactPageState extends State<ContactPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: _requestPop,
+      child:
+      Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.red,
         title: Text(_editedContact.name ?? "New Contact"),
@@ -48,7 +53,11 @@ class _ContactPageState extends State<ContactPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: (){
-
+          if(_editedContact.name.isNotEmpty && _editedContact.name !=null){
+            Navigator.pop(context, _editedContact);
+          } else {
+            FocusScope.of(context).requestFocus(_nameFocous);
+          }
         },
         child: Icon(Icons.save),
         backgroundColor: Colors.red,
@@ -69,9 +78,18 @@ class _ContactPageState extends State<ContactPage> {
                   ),
                 ),
               ),
+              onTap: (){
+                ImagePicker.pickImage(source: ImageSource.camera).then((file){
+                  if(file ==null) return;
+                  setState(() {
+                    _editedContact.img =file.path;
+                  });
+                });
+              },
             ),
             TextField(
               controller: _nameController,
+              focusNode: _nameFocous,
               decoration: InputDecoration(labelText: "Name"),
               onChanged: (text) {
                 _userEdited =true;
@@ -102,6 +120,37 @@ class _ContactPageState extends State<ContactPage> {
         ),
       ),
 
+    )
     );
+  }
+  Future<bool> _requestPop(){
+    if(_userEdited){
+      showDialog(context: context, 
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Discart Changes?"),
+          content: Text("All alterations will be discarted."),
+          actions: <Widget>[
+            FlatButton(
+              child: Text("Cancel"),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            FlatButton(
+              child: Text("Yes"),
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+            )
+          ],
+        );
+      }
+      );
+      return Future.value(false);
+    } else {
+      return Future.value(true);
+    }
   }
 }
