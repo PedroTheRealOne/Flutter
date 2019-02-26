@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'ui/chat_screen.dart';
 
 void main() async{ 
   runApp(MaterialApp(
