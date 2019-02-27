@@ -37,7 +37,6 @@ class HomeTab extends StatelessWidget {
             ),
             FutureBuilder<QuerySnapshot>(
               future: Firestore.instance.collection("home").orderBy("pos").getDocuments(),
-
               builder: (context, snapshot){
                 if(!snapshot.hasData){
                   return SliverToBoxAdapter(
