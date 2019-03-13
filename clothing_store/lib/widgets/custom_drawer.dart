@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:clothing_store/tiles/drawer_tile.dart';
+import 'package:clothing_store/screens/login_screen.dart';
 
 Widget _buildDrawerBack() => Container(
       decoration: BoxDecoration(
@@ -61,7 +62,9 @@ class CustomDrawer extends StatelessWidget {
                               ),
                               ),
                             onTap: (){
-
+                              Navigator.of(context).push(
+                                MaterialPageRoute(builder: (context) => LoginScreen())
+                              );
                             },
                           )
                         ],
