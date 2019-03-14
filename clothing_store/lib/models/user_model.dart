@@ -13,7 +13,7 @@ class UserModel extends Model{
 
   bool isLoading = false;
 
-  void signUp({@required Map<String, dynamic> userData, @required String pass, @required VoidCallback onSucess, @required VoidCallback onFaile}){
+  void signUp({@required Map<String, dynamic> userData, @required String pass, @required VoidCallback onSuccess, @required VoidCallback onFail}){
     isLoading =true;
     notifyListeners();
 
@@ -25,13 +25,13 @@ class UserModel extends Model{
 
       await _saveUserData(userData);
 
-      onSucess();
+      onSuccess();
       isLoading =false;
       notifyListeners();
 
     }).catchError((e){
 
-      onFaile();
+      onFail();
       isLoading =false;
       notifyListeners();
 
