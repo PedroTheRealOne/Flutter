@@ -18,12 +18,12 @@ class _ProductScreenState extends State<ProductScreen> {
 
   _ProductScreenState(this.product);
 
+  String size;
+
   @override
   Widget build(BuildContext context) {
 
     final Color primaryColor =Theme.of(context).primaryColor;
-
-    String size;
 
     return Scaffold(
       appBar: AppBar(

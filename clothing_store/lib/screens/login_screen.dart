@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:clothing_store/screens/singup_screen.dart';
+import 'package:clothing_store/models/user_model.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 class LoginScreen extends StatelessWidget {
 
@@ -27,7 +29,12 @@ class LoginScreen extends StatelessWidget {
           )
         ],
       ),
-      body: Form(
+      body: ScopedModelDescendant<UserModel>(
+        builder: (context, child, model){
+          if(model.isLoading)
+            return Center(child: CircularProgressIndicator(),); 
+
+          return Form(
         key: _formKey,
         child: ListView(
           padding: EdgeInsets.all(16.0),
@@ -80,6 +87,8 @@ class LoginScreen extends StatelessWidget {
             ),
           ],
         ),
+      );
+        },
       ),
     );
   }
