@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:clothing_store/tiles/drawer_tile.dart';
 import 'package:clothing_store/screens/login_screen.dart';
+import 'package:scoped_model/scoped_model.dart';
+import 'package:clothing_store/models/user_model.dart';
 
 Widget _buildDrawerBack() => Container(
       decoration: BoxDecoration(
@@ -46,15 +48,17 @@ class CustomDrawer extends StatelessWidget {
                     Positioned(
                       left: 0.0,
                       bottom: 0.0,
-                      child: Column(
+                      child: ScopedModelDescendant<UserModel>(
+                        builder: (context, child, model){
+                          return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Text("Hello, ",
+                          Text("Hello, ${!model.isLoggedIn()? "" : model.userData["name"]}",
                           style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold
                            ),
                           ),
                           GestureDetector(
-                            child: Text("Sing in or Sing up >",
+                            child: Text(!model.isLoggedIn() ? "Sing in or Sing up >" : "Logout",
                              style: TextStyle(
                               color: Theme.of(context).primaryColor,
                               fontSize: 16.0,
@@ -62,12 +66,18 @@ class CustomDrawer extends StatelessWidget {
                               ),
                               ),
                             onTap: (){
+                              if(!model.isLoggedIn()){
                               Navigator.of(context).push(
                                 MaterialPageRoute(builder: (context) => LoginScreen())
                               );
+                              } else {
+                                model.singOut();
+                              }
                             },
                           )
                         ],
+                      );
+                        },
                       ),
                     ),
                   ],
