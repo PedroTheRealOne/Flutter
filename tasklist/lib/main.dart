@@ -5,7 +5,10 @@ import 'dart:io';
 import 'dart:convert';
 
 void main() => runApp(MaterialApp(
-      home: Home(),
+      debugShowCheckedModeBanner: false,
+      home: Home(
+
+      ),
     ));
 
 class Home extends StatefulWidget {
