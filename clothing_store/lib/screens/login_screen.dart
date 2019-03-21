@@ -81,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       backgroundColor: Colors.redAccent,
                       duration: Duration(seconds: 2),
                     )
-                    );
+                    ); 
                   } else {
                     model.recoverPass(_emailController.text);
                       _scaffoldKey.currentState.showSnackBar(
