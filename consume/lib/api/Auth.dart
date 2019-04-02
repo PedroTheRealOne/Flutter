@@ -16,7 +16,7 @@ class Auth {
     return user;
   }
 
-  Future<Map<String, dynamic>> _singUp(Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>> singUp(Map<String, dynamic> data) async {
     final response = await http.post('auth/register', data);
     Map<String, dynamic> newUser = json.decode(response.body);
     return newUser;

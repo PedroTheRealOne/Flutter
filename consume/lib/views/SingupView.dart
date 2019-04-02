@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:quantumlabs_flutter_widgets/quantumlabs_flutter_widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
+import 'package:consume/api/Auth.dart';
 
 class SingupView extends StatefulWidget {
   @override
@@ -95,8 +96,11 @@ class _SingupViewState extends State<SingupView> {
   Widget _createButton() => RoundedButton(
     buttonText: Text("Create"),
     buttonClick: (){
-     /* _singUp(_usernameController.text, _emailController.text, _passwordController.text);
-      Navigator.pop(context);*/
+
+      Map<String, dynamic> data = {"email": _emailController.text, "username": _usernameController.text, "password": _passwordController.text};
+
+      Auth().singUp(data);
+      Navigator.pop(context);
     },
   );
 
