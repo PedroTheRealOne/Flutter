@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:quantumlabs_flutter_widgets/quantumlabs_flutter_widgets.dart';
 import 'package:consume/api/Tweet.dart' as TweetAPI;
-import 'package:consume/widgets/CustomDrawer.dart';
 import 'package:consume/views/TweetView.dart';
 import 'package:consume/api/Auth.dart';
 import 'package:consume/views/EditTweetView.dart';
-import 'package:consume/models/Tweet.dart' as tweetMod;
-
+import 'package:consume/views/LoginView.dart';
+import 'package:share/share.dart';
 
 class HomeView extends StatefulWidget {
   @override
@@ -22,10 +21,21 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: CustomDrawer(),
       appBar: AppBar(
         title: Text("Tweet Feed"),
         centerTitle: true,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.exit_to_app),
+            onPressed: () async {
+              await Auth().logout();
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginView()),
+                  (Route<dynamic> route) => false);
+            },
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
@@ -70,7 +80,6 @@ class _HomeViewState extends State<HomeView> {
       ),
     );
   }
-
 
   Widget _createABetterTweetTable(List<dynamic> listTweets) => ListView.builder(
         itemCount: listTweets.length,
@@ -139,35 +148,58 @@ class _HomeViewState extends State<HomeView> {
                               VerticalDivider(),
                               GestureDetector(
                                 child: Icon(Icons.edit),
-                                onTap: () async{
-
-                                  Map<String, dynamic> idTweet = {'tweetId' : listTweets.elementAt(index)['id']};
-                                  Map<String, dynamic> idUser = {'userId': listTweets.elementAt(index)['user_id']};
-                                  Map<String, dynamic> user = await Auth().isLogged();
+                                onTap: () async {
+                                  Map<String, dynamic> idTweet = {
+                                    'tweetId': listTweets.elementAt(index)['id']
+                                  };
+                                  Map<String, dynamic> idUser = {
+                                    'userId':
+                                        listTweets.elementAt(index)['user_id']
+                                  };
+                                  Map<String, dynamic> user =
+                                      await Auth().isLogged();
 
                                   var _idTweet = idTweet.values.toList();
                                   var _idUser = idUser.values.toList();
 
-                                  if(user['user']['id'] == _idUser[0]){
-                                  Future<List<dynamic>> tweet = TweetAPI.Tweet().getThisTweet(_idTweet[0], _idUser[0]);
+                                  if (user['user']['id'] == _idUser[0]) {
+                                    Future<List<dynamic>> tweet =
+                                        TweetAPI.Tweet().getThisTweet(
+                                            _idTweet[0], _idUser[0]);
 
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => EditTweetView(_idTweet[0])));
-
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                EditTweetView(_idTweet[0])));
                                   } else {
-                                    return new SnackBar(
-                                      content: Text("Sem permissao irmao"),
-                                      action: SnackBarAction(
-                                        label: "dismiss",
-                                        onPressed: (){},
-                                      ),
-                                    );
+                                    DialogHelper(context).showSimpleDialog(
+                                        "Erro",
+                                        "Você não tem permissão para alterar esse tweet");
                                   }
                                 },
                               ),
                               VerticalDivider(),
                               GestureDetector(
                                 child: Icon(Icons.share),
-                                onTap: () {},
+                                onTap: () async {
+                                  await Auth().isLogged();
+
+                                  Map<String, dynamic> userName = {
+                                    'userId':
+                                        listTweets.elementAt(index)['user'][0]['username']
+                                  };
+                                  Map<String, dynamic> tweetBody = {
+                                    'userId':
+                                        listTweets.elementAt(index)['body']
+                                  };
+
+                                  var _username = userName.values.toList();
+                                  var _tweetBody = tweetBody.values.toList().toString();
+
+                                  Share.share(
+                                      "Tweet de @$_username \n $_tweetBody");
+                                },
                               )
                             ],
                           ),

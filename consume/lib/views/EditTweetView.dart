@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:consume/api/Tweet.dart';
+import 'package:quantumlabs_flutter_widgets/helpers/DialogHelper.dart';
 
 class EditTweetView extends StatefulWidget {
 
@@ -40,15 +41,9 @@ class _EditTweetViewState extends State<EditTweetView> {
           print(widget.id);
           Map<String, dynamic> data = {'body': _tweetController.text};
           Tweet().updateTweet(widget.id, data);
+          //DialogHelper(context).showSimpleDialog("Sucesso", "Tweet editado com sucesso!");
 
           Navigator.pop(context);
-
-          return SnackBar(
-            content: Text("Tweet Editado com Sucesso!"),
-            action: SnackBarAction(
-              label: "Dismiss",
-            ),
-          );
         },
       ),
     );
