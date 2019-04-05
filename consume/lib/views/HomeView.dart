@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/animation.dart';
 import 'package:quantumlabs_flutter_widgets/quantumlabs_flutter_widgets.dart';
 import 'package:consume/api/Tweet.dart' as TweetAPI;
 import 'package:consume/views/TweetView.dart';
@@ -18,7 +19,8 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  bool flagzinha;
+  bool flagSort;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,16 +41,16 @@ class _HomeViewState extends State<HomeView> {
               List<dynamic> listTweets;
               listTweets = await TweetAPI.Tweet().getTweetsAsc();
               setState(() {
-                flagzinha = true;
+                flagSort = true;
                 return _createTweetTableAsc(listTweets, widget.idUser);
               });
             },
           ),
           IconButton(
             icon: Icon(Icons.arrow_downward),
-            onPressed: (){
+            onPressed: () {
               setState(() {
-                flagzinha = false;
+                flagSort = false;
               });
             },
           ),
@@ -96,13 +98,14 @@ class _HomeViewState extends State<HomeView> {
                     if (snapshot.hasError) {
                       return Container();
                     } else {
-                      if(flagzinha == false){
-                      return _createABetterTweetTable(
-                        snapshot.data,
-                        widget.idUser,
-                      );
+                      if (flagSort == false) {
+                        return _createABetterTweetTable(
+                          snapshot.data,
+                          widget.idUser,
+                        );
                       } else {
-                        return _createTweetTableAsc(snapshot.data, widget.idUser);
+                        return _createTweetTableAsc(
+                            snapshot.data, widget.idUser);
                       }
                     }
                 }
@@ -176,8 +179,7 @@ class _HomeViewState extends State<HomeView> {
                             decoration: BoxDecoration(
                                 border:
                                     Border.all(width: 0, color: Colors.white)),
-                            child: Text(listTweets.elementAt(index)["body"],
-                                style: TextStyle(fontSize: 14)),
+                            child: _likedTweeet(listTweets, index, widget.idUser),
                           ),
                         ),
                         Container(
@@ -186,39 +188,7 @@ class _HomeViewState extends State<HomeView> {
                             children: <Widget>[
                               _likeIcon(listTweets, index, widget.idUser),
                               VerticalDivider(),
-                              GestureDetector(
-                                child: Icon(Icons.edit),
-                                onTap: () async {
-                                  Map<String, dynamic> idTweet = {
-                                    'tweetId': listTweets.elementAt(index)['id']
-                                  };
-                                  Map<String, dynamic> idUser = {
-                                    'userId':
-                                        listTweets.elementAt(index)['user_id']
-                                  };
-                                  Map<String, dynamic> user =
-                                      await Auth().isLogged();
-                                  Map<String, dynamic> tweetBody = {
-                                    'body': listTweets.elementAt(index)['body']
-                                  };
-
-                                  var _idTweet = idTweet.values.toList();
-                                  var _idUser = idUser.values.toList();
-                                  var _tweetBody = tweetBody.values.toList();
-
-                                  if (user['user']['id'] == _idUser[0]) {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => EditTweetView(
-                                                _idTweet[0], _tweetBody[0])));
-                                  } else {
-                                    DialogHelper(context).showSimpleDialog(
-                                        "Erro",
-                                        "Você não tem permissão para alterar esse tweet");
-                                  }
-                                },
-                              ),
+                              _editIcon(listTweets, index, widget.idUser),
                               VerticalDivider(
                                 color: Colors.yellow,
                               ),
@@ -259,22 +229,13 @@ class _HomeViewState extends State<HomeView> {
         },
       );
 
-  Future<Null> _sortByDataAsc(List<dynamic> listTweets, int index) async {
-    await Future.delayed(Duration(seconds: 1));
-
-    if (_convertDateFromString(listTweets.elementAt(index)['created_at']) >
-        _convertDateFromString(listTweets.elementAt(index + 1)['created_at'])) {
-      // return _createABetterTweetTable(listTweets, id);
-    }
-  }
-
   _convertDateFromString(String date) {
     DateTime tweetDate = DateTime.parse(date);
     return (formatDate(
         tweetDate, [dd, '/', mm, '/', yyyy, ' ', hh, ':', nn, '', ' ', am]));
   }
 
-  verLike(List<dynamic> listTweets, int index, int id) {
+  _verLike(List<dynamic> listTweets, int index, int id) {
     int i = 0;
     int size;
     size = listTweets.elementAt(index)['likes'].length;
@@ -294,7 +255,7 @@ class _HomeViewState extends State<HomeView> {
 
   Widget _likeIcon(List<dynamic> listTweets, int index, int id) =>
       GestureDetector(
-        child: verLike(listTweets, index, id),
+        child: _verLike(listTweets, index, id),
         onTap: () {
           Map<String, dynamic> data = {
             "tweetId": listTweets.elementAt(index)['id']
@@ -302,10 +263,98 @@ class _HomeViewState extends State<HomeView> {
           TweetAPI.Tweet().likeTweet(data);
 
           setState(() {
-            verLike(listTweets, index, id);
+            _verLike(listTweets, index, id);
           });
         },
       );
+
+  _verEdit(List<dynamic> listTweets, int index, int id) {
+    int i = 0;
+    int size;
+    size = listTweets.length;
+    if (size > 0) {
+      while (i < size) {
+        if (listTweets.elementAt(index)['user_id'] == id) {
+          return Icon(Icons.edit);
+        } else {
+          i++;
+        }
+      }
+      return Icon(
+        Icons.edit,
+        color: Color.fromRGBO(255, 135, 135, 0.5),
+      );
+    } else {
+      return Icon(
+        Icons.edit,
+        color: Color.fromRGBO(255, 135, 135, 0.5),
+      );
+    }
+  }
+
+  Widget _editIcon(List<dynamic> listTweets, int index, int id) =>
+      GestureDetector(
+        child: _verEdit(listTweets, index, id),
+        onTap: () async {
+          Map<String, dynamic> idTweet = {
+            'tweetId': listTweets.elementAt(index)['id']
+          };
+          Map<String, dynamic> idUser = {
+            'userId': listTweets.elementAt(index)['user_id']
+          };
+          Map<String, dynamic> user = await Auth().isLogged();
+          Map<String, dynamic> tweetBody = {
+            'body': listTweets.elementAt(index)['body']
+          };
+
+          var _idTweet = idTweet.values.toList();
+          var _idUser = idUser.values.toList();
+          var _tweetBody = tweetBody.values.toList();
+
+          if (user['user']['id'] == _idUser[0]) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        EditTweetView(_idTweet[0], _tweetBody[0])));
+          } else {
+            DialogHelper(context).showSimpleDialog(
+                "Erro", "Você não tem permissão para alterar esse tweet");
+          }
+        },
+      );
+
+  _likedTweeet(List<dynamic> listTweets, int index, int id) {
+    int i = 0;
+    int size;
+    size = listTweets.elementAt(index)['likes'].length;
+    if (size > 0) {
+      while (i < size) {
+        if (listTweets.elementAt(index)['likes'][i]['user_id'] == id) {
+          return Text(
+            listTweets.elementAt(index)["body"].toString(),
+            style: TextStyle(
+                fontSize: 14, color: Color.fromRGBO(255, 51, 51, 2.0)),
+          );
+        } else {
+          i++;
+        }
+      }
+      return Text(
+        listTweets.elementAt(index)["body"].toString(),
+        style: TextStyle(
+          fontSize: 14,
+        ),
+      );
+    } else {
+      return Text(
+        listTweets.elementAt(index)["body"].toString(),
+        style: TextStyle(
+          fontSize: 14,
+        ),
+      );
+    }
+  }
 
   Widget _createTweetTableAsc(List<dynamic> listTweets, int id) =>
       ListView.builder(
@@ -369,8 +418,8 @@ class _HomeViewState extends State<HomeView> {
                             decoration: BoxDecoration(
                                 border:
                                     Border.all(width: 0, color: Colors.white)),
-                            child: Text(listTweets.elementAt(index)["body"],
-                                style: TextStyle(fontSize: 14)),
+                            child:
+                                _likedTweeet(listTweets, index, widget.idUser),
                           ),
                         ),
                         Container(
@@ -379,39 +428,7 @@ class _HomeViewState extends State<HomeView> {
                             children: <Widget>[
                               _likeIcon(listTweets, index, widget.idUser),
                               VerticalDivider(),
-                              GestureDetector(
-                                child: Icon(Icons.edit),
-                                onTap: () async {
-                                  Map<String, dynamic> idTweet = {
-                                    'tweetId': listTweets.elementAt(index)['id']
-                                  };
-                                  Map<String, dynamic> idUser = {
-                                    'userId':
-                                        listTweets.elementAt(index)['user_id']
-                                  };
-                                  Map<String, dynamic> user =
-                                      await Auth().isLogged();
-                                  Map<String, dynamic> tweetBody = {
-                                    'body': listTweets.elementAt(index)['body']
-                                  };
-
-                                  var _idTweet = idTweet.values.toList();
-                                  var _idUser = idUser.values.toList();
-                                  var _tweetBody = tweetBody.values.toList();
-
-                                  if (user['user']['id'] == _idUser[0]) {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => EditTweetView(
-                                                _idTweet[0], _tweetBody[0])));
-                                  } else {
-                                    DialogHelper(context).showSimpleDialog(
-                                        "Erro",
-                                        "Você não tem permissão para alterar esse tweet");
-                                  }
-                                },
-                              ),
+                              _editIcon(listTweets, index, widget.idUser),
                               VerticalDivider(
                                 color: Colors.yellow,
                               ),
