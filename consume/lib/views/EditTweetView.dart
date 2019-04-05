@@ -18,6 +18,7 @@ class _EditTweetViewState extends State<EditTweetView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Color.fromRGBO(34, 34, 34, 1),
         title: Text("Tweet"),
         centerTitle: true,
       ),
@@ -39,7 +40,7 @@ class _EditTweetViewState extends State<EditTweetView> {
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w100,
-                        color: Colors.blue,
+                        color: Color.fromRGBO(34, 34, 34, 1),
                       ),
                     ),
                   ),

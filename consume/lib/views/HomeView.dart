@@ -7,7 +7,6 @@ import 'package:consume/api/Auth.dart';
 import 'package:consume/views/EditTweetView.dart';
 import 'package:consume/views/LoginView.dart';
 import 'package:share/share.dart';
-import 'package:consume/views/FavTweetView.dart';
 import 'package:date_format/date_format.dart';
 
 class HomeView extends StatefulWidget {
@@ -25,16 +24,10 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Tweet Feed"),
+        backgroundColor: Color.fromRGBO(34, 34, 34, 1),
+        title: Text("Tweet Feed", textAlign: TextAlign.center,),
         centerTitle: true,
         actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.star),
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => FavTweetView()));
-            },
-          ),
           IconButton(
             icon: Icon(Icons.arrow_upward),
             onPressed: () async {
@@ -67,6 +60,7 @@ class _HomeViewState extends State<HomeView> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Color.fromRGBO(34, 34, 34, 1),
         child: Icon(Icons.add),
         onPressed: () {
           Navigator.push(
@@ -137,7 +131,7 @@ class _HomeViewState extends State<HomeView> {
                         shape: BoxShape.circle,
                         image: DecorationImage(
                             image: NetworkImage(
-                                "https://scontent.fsjk2-1.fna.fbcdn.net/v/t1.0-9/53311867_1434824966654751_5197044551398719488_o.jpg?_nc_cat=106&_nc_ht=scontent.fsjk2-1.fna&oh=9ae96482ce308ba32a713bd83d78cefd&oe=5D09DED5"),
+                                "https://cdn0.iconfinder.com/data/icons/elasto-online-store/26/00-ELASTOFONT-STORE-READY_user-circle-512.png"),
                             fit: BoxFit.fitWidth)),
                   ),
                   Expanded(
@@ -334,7 +328,7 @@ class _HomeViewState extends State<HomeView> {
           return Text(
             listTweets.elementAt(index)["body"].toString(),
             style: TextStyle(
-                fontSize: 14, color: Color.fromRGBO(255, 51, 51, 2.0)),
+                fontSize: 14, color: Color.fromRGBO(247, 79, 79, 1.0)),
           );
         } else {
           i++;
@@ -376,7 +370,7 @@ class _HomeViewState extends State<HomeView> {
                         shape: BoxShape.circle,
                         image: DecorationImage(
                             image: NetworkImage(
-                                "https://scontent.fsjk2-1.fna.fbcdn.net/v/t1.0-9/53311867_1434824966654751_5197044551398719488_o.jpg?_nc_cat=106&_nc_ht=scontent.fsjk2-1.fna&oh=9ae96482ce308ba32a713bd83d78cefd&oe=5D09DED5"),
+                                "https://cdn0.iconfinder.com/data/icons/elasto-online-store/26/00-ELASTOFONT-STORE-READY_user-circle-512.png"),
                             fit: BoxFit.fitWidth)),
                   ),
                   Expanded(

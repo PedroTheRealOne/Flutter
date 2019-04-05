@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:quantumlabs_flutter_widgets/quantumlabs_flutter_widgets.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
 import 'package:consume/api/Auth.dart';
 
@@ -11,7 +10,6 @@ class SingupView extends StatefulWidget {
 
 class _SingupViewState extends State<SingupView> {
 
-  final _apiWeb = 'http://127.0.0.1:3333/auth/register';
   final _emailController = TextEditingController();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -25,6 +23,7 @@ class _SingupViewState extends State<SingupView> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          backgroundColor: Color.fromRGBO(34, 34, 34, 1),
           title: Text("Create User"),
         ),
         key: _scaffoldKey,
@@ -94,7 +93,10 @@ class _SingupViewState extends State<SingupView> {
       );
 
   Widget _createButton() => RoundedButton(
-    buttonText: Text("Create"),
+    buttonColor: Color.fromRGBO(34, 34, 34, 1),
+    buttonText: Text("Create", style: TextStyle(
+      color: Colors.white
+    ),),
     buttonClick: (){
 
       Map<String, dynamic> data = {"email": _emailController.text, "username": _usernameController.text, "password": _passwordController.text};

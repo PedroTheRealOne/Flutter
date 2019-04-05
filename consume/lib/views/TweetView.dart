@@ -15,6 +15,7 @@ class _TweetViewState extends State<TweetView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Color.fromRGBO(34, 34, 34, 1),
         title: Text("Tweet"),
         centerTitle: true,
       ),
@@ -31,11 +32,10 @@ class _TweetViewState extends State<TweetView> {
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
+        backgroundColor: Color.fromRGBO(34, 34, 34, 1),
         onPressed: () {
           if (!_formKey.currentState.validate()) {
-
           } else {
-            
             Map<String, dynamic> data = {"body": _tweetController.text};
             tweetAPI.Tweet().createTweet(data);
           }

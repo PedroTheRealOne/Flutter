@@ -31,5 +31,6 @@ flutter:
   assets:
     - assets/Twitter.png
     - assets/Gustavo.jpeg
+    - assets/TwitterDark.png
 
   uses-material-design: true

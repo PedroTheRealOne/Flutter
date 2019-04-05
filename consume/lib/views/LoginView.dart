@@ -21,6 +21,7 @@ class _LoginViewState extends State<LoginView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Color.fromRGBO(34, 34, 34, 1),
         title: Text("Login"),
         centerTitle: true,
       ),
@@ -71,7 +72,7 @@ class _LoginViewState extends State<LoginView> {
         decoration: InputDecoration(
           labelText: "E-mail",
           border: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.blue),
+            borderSide: BorderSide(color: Color.fromRGBO(34, 34, 34, 1),),
           ),
         ),
         validator: (value) => ValidationHelper().checkEmail(value),
@@ -84,7 +85,7 @@ class _LoginViewState extends State<LoginView> {
           decoration: InputDecoration(
             labelText: "Password",
             border: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.blue),
+              borderSide: BorderSide(color: Color.fromRGBO(34, 34, 34, 1),),
             ),
           ),
           validator: (value) => ValidationHelper().checkPassword(value),
@@ -92,8 +93,8 @@ class _LoginViewState extends State<LoginView> {
       );
 
   Widget _loginButton() => RoundedButton(
-      // buttonColor: Colors.blue,
-      buttonText: Text("Login!"),
+      buttonColor: Color.fromRGBO(34, 34, 34, 1),
+      buttonText: Text("Login", style: TextStyle(color: Colors.white),),
       buttonClick: () {
         if (!_formKey.currentState.validate()) {
         } else {
@@ -121,7 +122,7 @@ class _LoginViewState extends State<LoginView> {
   Widget _imageDisplay() => Column(
         children: <Widget>[
           Image.asset(
-            'assets/Twitter.png',
+            'assets/TwitterDark.png',
             height: 180,
             width: 180,
           ),
@@ -132,7 +133,7 @@ class _LoginViewState extends State<LoginView> {
         child: Text(
           "Criar Usuário",
           style: TextStyle(
-              fontSize: 11, fontWeight: FontWeight.bold, color: Colors.blue),
+              fontSize: 11, fontWeight: FontWeight.bold, color: Color.fromRGBO(34, 34, 34, 1),),
         ),
         onTap: () {
           Navigator.push(
