@@ -7,7 +7,7 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
 
   MyApp(){
-    http.urlBase = "http://127.0.0.1:3333";
+    http.urlBase = "http://25.52.121.201:3333";
   }
   // This widget is the root of your application.
   @override

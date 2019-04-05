@@ -6,18 +6,19 @@ import 'package:consume/api/Auth.dart';
 import 'package:consume/views/EditTweetView.dart';
 import 'package:consume/views/LoginView.dart';
 import 'package:share/share.dart';
+import 'package:consume/views/FavTweetView.dart';
+import 'package:date_format/date_format.dart';
 
 class HomeView extends StatefulWidget {
+  final int idUser;
+  const HomeView([this.idUser]);
+
   @override
   _HomeViewState createState() => _HomeViewState();
 }
 
 class _HomeViewState extends State<HomeView> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
+  bool flagzinha;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,6 +26,32 @@ class _HomeViewState extends State<HomeView> {
         title: Text("Tweet Feed"),
         centerTitle: true,
         actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.star),
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => FavTweetView()));
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.arrow_upward),
+            onPressed: () async {
+              List<dynamic> listTweets;
+              listTweets = await TweetAPI.Tweet().getTweetsAsc();
+              setState(() {
+                flagzinha = true;
+                return _createTweetTableAsc(listTweets, widget.idUser);
+              });
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.arrow_downward),
+            onPressed: (){
+              setState(() {
+                flagzinha = false;
+              });
+            },
+          ),
           IconButton(
             icon: Icon(Icons.exit_to_app),
             onPressed: () async {
@@ -69,8 +96,14 @@ class _HomeViewState extends State<HomeView> {
                     if (snapshot.hasError) {
                       return Container();
                     } else {
+                      if(flagzinha == false){
                       return _createABetterTweetTable(
-                          snapshot.data); //_createTweetTable(snapshot.data);
+                        snapshot.data,
+                        widget.idUser,
+                      );
+                      } else {
+                        return _createTweetTableAsc(snapshot.data, widget.idUser);
+                      }
                     }
                 }
               },
@@ -81,7 +114,8 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Widget _createABetterTweetTable(List<dynamic> listTweets) => ListView.builder(
+  Widget _createABetterTweetTable(List<dynamic> listTweets, int id) =>
+      ListView.builder(
         itemCount: listTweets.length,
         reverse: true,
         itemBuilder: (BuildContext context, int index) {
@@ -107,17 +141,31 @@ class _HomeViewState extends State<HomeView> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: <Widget>[
-                        Container(
-                          padding: EdgeInsets.only(left: 16),
-                          child: Text(
-                            "@" +
-                                listTweets
-                                    .elementAt(index)["user"][0]["username"]
-                                    .toString(),
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(16, 0, 0, 0),
+                          child: Row(
+                            children: <Widget>[
+                              Text(
+                                "@" +
+                                    listTweets
+                                        .elementAt(index)["user"][0]["username"]
+                                        .toString(),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              Text(
+                                "    at: " +
+                                    _convertDateFromString(listTweets
+                                            .elementAt(index)['created_at'])
+                                        .toString(),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w100,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         Padding(
@@ -136,15 +184,7 @@ class _HomeViewState extends State<HomeView> {
                           padding: EdgeInsets.fromLTRB(16, 0, 0, 0),
                           child: Row(
                             children: <Widget>[
-                              GestureDetector(
-                                child: Icon(Icons.favorite),
-                                onTap: () {
-                                  Map<String, dynamic> data = {
-                                    "tweetId": listTweets.elementAt(index)['id']
-                                  };
-                                  TweetAPI.Tweet().likeTweet(data);
-                                },
-                              ),
+                              _likeIcon(listTweets, index, widget.idUser),
                               VerticalDivider(),
                               GestureDetector(
                                 child: Icon(Icons.edit),
@@ -158,20 +198,20 @@ class _HomeViewState extends State<HomeView> {
                                   };
                                   Map<String, dynamic> user =
                                       await Auth().isLogged();
+                                  Map<String, dynamic> tweetBody = {
+                                    'body': listTweets.elementAt(index)['body']
+                                  };
 
                                   var _idTweet = idTweet.values.toList();
                                   var _idUser = idUser.values.toList();
+                                  var _tweetBody = tweetBody.values.toList();
 
                                   if (user['user']['id'] == _idUser[0]) {
-                                    Future<List<dynamic>> tweet =
-                                        TweetAPI.Tweet().getThisTweet(
-                                            _idTweet[0], _idUser[0]);
-
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) =>
-                                                EditTweetView(_idTweet[0])));
+                                            builder: (context) => EditTweetView(
+                                                _idTweet[0], _tweetBody[0])));
                                   } else {
                                     DialogHelper(context).showSimpleDialog(
                                         "Erro",
@@ -179,26 +219,224 @@ class _HomeViewState extends State<HomeView> {
                                   }
                                 },
                               ),
-                              VerticalDivider(),
+                              VerticalDivider(
+                                color: Colors.yellow,
+                              ),
                               GestureDetector(
                                 child: Icon(Icons.share),
                                 onTap: () async {
                                   await Auth().isLogged();
 
                                   Map<String, dynamic> userName = {
-                                    'userId':
-                                        listTweets.elementAt(index)['user'][0]['username']
+                                    'userId': listTweets
+                                        .elementAt(index)['user'][0]['username']
                                   };
                                   Map<String, dynamic> tweetBody = {
                                     'userId':
                                         listTweets.elementAt(index)['body']
                                   };
 
-                                  var _username = userName.values.toList();
-                                  var _tweetBody = tweetBody.values.toList().toString();
+                                  var _username = userName.values.toList()[0];
+                                  var _tweetBody = tweetBody.values.toList()[0];
+
+                                  _convertDateFromString(listTweets
+                                      .elementAt(index)['created_at']);
 
                                   Share.share(
-                                      "Tweet de @$_username \n $_tweetBody");
+                                      "Tweet de @$_username: \n $_tweetBody");
+                                },
+                              )
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+      );
+
+  Future<Null> _sortByDataAsc(List<dynamic> listTweets, int index) async {
+    await Future.delayed(Duration(seconds: 1));
+
+    if (_convertDateFromString(listTweets.elementAt(index)['created_at']) >
+        _convertDateFromString(listTweets.elementAt(index + 1)['created_at'])) {
+      // return _createABetterTweetTable(listTweets, id);
+    }
+  }
+
+  _convertDateFromString(String date) {
+    DateTime tweetDate = DateTime.parse(date);
+    return (formatDate(
+        tweetDate, [dd, '/', mm, '/', yyyy, ' ', hh, ':', nn, '', ' ', am]));
+  }
+
+  verLike(List<dynamic> listTweets, int index, int id) {
+    int i = 0;
+    int size;
+    size = listTweets.elementAt(index)['likes'].length;
+    if (size > 0) {
+      while (i < size) {
+        if (listTweets.elementAt(index)['likes'][i]['user_id'] == id) {
+          return Icon(Icons.favorite);
+        } else {
+          i++;
+        }
+      }
+      return Icon(Icons.favorite_border);
+    } else {
+      return Icon(Icons.favorite_border);
+    }
+  }
+
+  Widget _likeIcon(List<dynamic> listTweets, int index, int id) =>
+      GestureDetector(
+        child: verLike(listTweets, index, id),
+        onTap: () {
+          Map<String, dynamic> data = {
+            "tweetId": listTweets.elementAt(index)['id']
+          };
+          TweetAPI.Tweet().likeTweet(data);
+
+          setState(() {
+            verLike(listTweets, index, id);
+          });
+        },
+      );
+
+  Widget _createTweetTableAsc(List<dynamic> listTweets, int id) =>
+      ListView.builder(
+        itemCount: listTweets.length,
+        reverse: false,
+        itemBuilder: (BuildContext context, int index) {
+          return Column(
+            children: <Widget>[
+              Padding(padding: EdgeInsets.fromLTRB(16, 0, 16, 0)),
+              Divider(),
+              Row(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16, 0, 0, 0),
+                  ),
+                  Container(
+                    padding: EdgeInsets.all(30),
+                    decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        image: DecorationImage(
+                            image: NetworkImage(
+                                "https://scontent.fsjk2-1.fna.fbcdn.net/v/t1.0-9/53311867_1434824966654751_5197044551398719488_o.jpg?_nc_cat=106&_nc_ht=scontent.fsjk2-1.fna&oh=9ae96482ce308ba32a713bd83d78cefd&oe=5D09DED5"),
+                            fit: BoxFit.fitWidth)),
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(16, 0, 0, 0),
+                          child: Row(
+                            children: <Widget>[
+                              Text(
+                                "@" +
+                                    listTweets
+                                        .elementAt(index)["user"][0]["username"]
+                                        .toString(),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              Text(
+                                "    at: " +
+                                    _convertDateFromString(listTweets
+                                            .elementAt(index)['created_at'])
+                                        .toString(),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w100,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(16, 4, 0, 0),
+                          child: Container(
+                            margin: EdgeInsets.fromLTRB(0, 4, 16, 0),
+                            padding: EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                                border:
+                                    Border.all(width: 0, color: Colors.white)),
+                            child: Text(listTweets.elementAt(index)["body"],
+                                style: TextStyle(fontSize: 14)),
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.fromLTRB(16, 0, 0, 0),
+                          child: Row(
+                            children: <Widget>[
+                              _likeIcon(listTweets, index, widget.idUser),
+                              VerticalDivider(),
+                              GestureDetector(
+                                child: Icon(Icons.edit),
+                                onTap: () async {
+                                  Map<String, dynamic> idTweet = {
+                                    'tweetId': listTweets.elementAt(index)['id']
+                                  };
+                                  Map<String, dynamic> idUser = {
+                                    'userId':
+                                        listTweets.elementAt(index)['user_id']
+                                  };
+                                  Map<String, dynamic> user =
+                                      await Auth().isLogged();
+                                  Map<String, dynamic> tweetBody = {
+                                    'body': listTweets.elementAt(index)['body']
+                                  };
+
+                                  var _idTweet = idTweet.values.toList();
+                                  var _idUser = idUser.values.toList();
+                                  var _tweetBody = tweetBody.values.toList();
+
+                                  if (user['user']['id'] == _idUser[0]) {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => EditTweetView(
+                                                _idTweet[0], _tweetBody[0])));
+                                  } else {
+                                    DialogHelper(context).showSimpleDialog(
+                                        "Erro",
+                                        "Você não tem permissão para alterar esse tweet");
+                                  }
+                                },
+                              ),
+                              VerticalDivider(
+                                color: Colors.yellow,
+                              ),
+                              GestureDetector(
+                                child: Icon(Icons.share),
+                                onTap: () async {
+                                  await Auth().isLogged();
+
+                                  Map<String, dynamic> userName = {
+                                    'userId': listTweets
+                                        .elementAt(index)['user'][0]['username']
+                                  };
+                                  Map<String, dynamic> tweetBody = {
+                                    'userId':
+                                        listTweets.elementAt(index)['body']
+                                  };
+
+                                  var _username = userName.values.toList()[0];
+                                  var _tweetBody = tweetBody.values.toList()[0];
+
+                                  _convertDateFromString(listTweets
+                                      .elementAt(index)['created_at']);
+
+                                  Share.share(
+                                      "Tweet de @$_username: \n $_tweetBody");
                                 },
                               )
                             ],

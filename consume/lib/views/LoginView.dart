@@ -25,36 +25,47 @@ class _LoginViewState extends State<LoginView> {
         centerTitle: true,
       ),
       key: _key,
-      body: SafeArea(
-        child: SingleChildScrollView(
-            child: Padding(
-          padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
-          child: Column(
-            children: <Widget>[
-              _imageDisplay(),
-              Padding(
-                  padding: CustomEdgeInsets().only8lp(bottom: true, top: true)),
-              Form(
-                key: _formKey,
-                child: Column(
-                  children: <Widget>[
-                    _emailField(),
-                    Padding(padding: CustomEdgeInsets().only8lp(bottom: true)),
-                    _passwordField(),
-                  ],
-                ),
+      body: Column(
+        children: <Widget>[
+          _imageDisplay(),
+          SingleChildScrollView(
+            child: 
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: <Widget>[
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                          child: _emailField(),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                          child: _passwordField(),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                    child: _loginButton(),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16, 0, 16, 40),
+                    child: _createUser(),
+                  ),
+                ],
               ),
-              Padding(padding: CustomEdgeInsets().only8lp(bottom: true)),
-              _loginButton(),
-              _createUserButton(),
-            ],
-          ),
-        )),
+            ),
+        ],
       ),
     );
   }
 
-  Widget _emailField() => TextFormField(
+  Widget _emailField() => Container(
+          child: TextFormField(
         controller: _emailController,
         keyboardType: TextInputType.emailAddress,
         decoration: InputDecoration(
@@ -64,18 +75,20 @@ class _LoginViewState extends State<LoginView> {
           ),
         ),
         validator: (value) => ValidationHelper().checkEmail(value),
-      );
+      ));
 
-  Widget _passwordField() => TextFormField(
-        controller: _passwordController,
-        obscureText: true,
-        decoration: InputDecoration(
-          labelText: "Password",
-          border: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.blue),
+  Widget _passwordField() => Container(
+        child: TextFormField(
+          controller: _passwordController,
+          obscureText: true,
+          decoration: InputDecoration(
+            labelText: "Password",
+            border: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.blue),
+            ),
           ),
+          validator: (value) => ValidationHelper().checkPassword(value),
         ),
-        validator: (value) => ValidationHelper().checkPassword(value),
       );
 
   Widget _loginButton() => RoundedButton(
@@ -91,10 +104,12 @@ class _LoginViewState extends State<LoginView> {
 
           Auth().login(data).then((res) {
             if (res['user'] != null) {
-              print(res['user']['id']);
+              print(res['user']['id'].toString());
+              int id;
+              id = res['user']['id'];
               Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (context) => HomeView()),
+                  MaterialPageRoute(builder: (context) => HomeView(id)),
                   (Route<dynamic> route) => false);
             } else {
               DialogHelper(context).showSimpleDialog(
@@ -107,13 +122,19 @@ class _LoginViewState extends State<LoginView> {
         children: <Widget>[
           Image.asset(
             'assets/Twitter.png',
+            height: 180,
+            width: 180,
           ),
         ],
       );
 
-  Widget _createUserButton() => RoundedButton(
-        buttonText: Text("Create User"),
-        buttonClick: () {
+  Widget _createUser() => GestureDetector(
+        child: Text(
+          "Criar Usuário",
+          style: TextStyle(
+              fontSize: 11, fontWeight: FontWeight.bold, color: Colors.blue),
+        ),
+        onTap: () {
           Navigator.push(
               context, MaterialPageRoute(builder: (context) => SingupView()));
         },
