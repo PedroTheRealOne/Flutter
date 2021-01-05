@@ -30,7 +30,7 @@
     "@adonisjs/mail": "^3.0.9",
     "@sentry/node": "^4.6.4",
     "aws-sdk": "^2.412.0",
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "cpf_cnpj": "^0.2.0",
     "csv": "^4.0.0",
     "csvtojson": "^2.0.8",
