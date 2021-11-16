@@ -29,7 +29,7 @@
     "@adonisjs/lucid": "^6.1.3",
     "@adonisjs/mail": "^3.0.9",
     "@sentry/node": "^4.6.4",
-    "aws-sdk": "^2.412.0",
+    "aws-sdk": "^2.814.0",
     "axios": "^0.18.0",
     "cpf_cnpj": "^0.2.0",
     "csv": "^4.0.0",
